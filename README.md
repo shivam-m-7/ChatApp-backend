@@ -16,8 +16,12 @@ Back end is implemented using [Node JS](https://nodejs.org/en/docs), [Express JS
 
 - Latest features of JavaScript i.e. ES6, ES7, ES8 is used
 - [React JS Hooks](https://reactjs.org/docs/hooks-intro.html) are used with Functional components
-- ES8 `async/await` is used
 - Responsive Design
+
+## requests handled
+- ES8 `async/await` is used
+- express-async-handler used
+
 
 <br/>
 
