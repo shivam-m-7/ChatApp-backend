@@ -16,8 +16,9 @@ const allUsers = asyncHandler(async (req, res) => {
       }
     : {};
 
-  //user id from protect MW
+  
   const users = await User.find(keyword).find({ _id: { $ne: req.user._id } }); 
+ 
   res.send(users);
 });
 
@@ -29,7 +30,9 @@ const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
+  
   if (user && (await user.matchPassword(password))) {
+  
     res.json({
       _id: user._id,
       name: user.name,
@@ -67,6 +70,8 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
     password, //mongoose mw to encrypt it before saving(creating) this doc in db//pre-save hook MW
   });
+
+
   if (user) {
     res.status(201).json({
       _id: user._id,

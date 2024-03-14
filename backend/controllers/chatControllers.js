@@ -37,12 +37,11 @@ const accessChat = asyncHandler(async (req, res) => {
       chatName: "sender", //just any string data
       isGroupChat: false,
       users: [req.user._id, userId], //both users
-    };
+    };    
 
     try {
       const createdChat = await Chat.create(chatData);
       const fullChat = await Chat.findOne({ _id: createdChat._id }).populate("users", "-password");
-
       res.status(200).json(fullChat);
     } catch (error) {
       res.status(400);
@@ -84,7 +83,7 @@ const fetchChats = asyncHandler(async (req, res) => {
 
 const createGroupChat = asyncHandler(async (req, res) => {
   if (!req.body.users || !req.body.name) {
-    return res.status(400).send({ message: "Please Fill all the feilds" });
+    return res.status(400).send({ message: "Please Fill all the fields" });
   }
   //stringified users array sent from FE //parsed here
   var users = JSON.parse(req.body.users);
@@ -146,6 +145,8 @@ const removeFromGroup = asyncHandler(async (req, res) => {
     .populate("users", "-password")
     .populate("groupAdmin", "-password");
 
+  //console.log(removed);  
+
   if (!removed) {
     res.status(404);
     throw new Error("Chat Not Found");
@@ -160,13 +161,9 @@ const removeFromGroup = asyncHandler(async (req, res) => {
 
 const addToGroup = asyncHandler(async (req, res) => {
   const { chatId, userId } = req.body;
-
-  //check if the requester is admin on FE
-
   const added = await Chat.findByIdAndUpdate( chatId, { $push: { users: userId } }, { new: true } )
     .populate("users", "-password")
     .populate("groupAdmin", "-password");
-    
   if (!added) {
     res.status(404);
     throw new Error("Chat Not Found");

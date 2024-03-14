@@ -12,6 +12,7 @@ const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 dotenv.config();
 connectDB(); //mongodb connection
 const app = express();
+
 app.use(express.json()); // to accept json data from req body sent from fe 
 
 app.use("/api/user", userRoutes);
@@ -35,12 +36,15 @@ if (process.env.NODE_ENV === "production") {
 }
 
 /* NODE_ENV=production *///add it in env
+
 // Error Handling middlewares
 app.use(notFound);
 app.use(errorHandler);
  
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, console.log(`Server started on port ${PORT}`.yellow.bold));
+
+
 const io = require("socket.io")(server, {
   pingTimeout: 120000,
   cors: {
@@ -57,26 +61,31 @@ io.on("connection", (socket) => {
     console.log(`Logged in user ${userData.name} joined the created room`);
     socket.emit("connected");
   });
+
   socket.on("join chat", (room) => {
-    socket.join(room);    
-  });  
+    socket.join(room);
+    console.log("User Joined the selectedChat Room: " + room);//room-selectedChatId
+  });
+  
   socket.on("typing", (room) => socket.in(room).emit("typing"));
   socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
 
   socket.on("new message", (newMessageRecieved) => {
     var chat = newMessageRecieved.chat;
-    if (!chat.users) return console.log("users not defined");
+
+    if (!chat.users) return console.log("chat.users not defined");
 
     chat.users.forEach((user) => {
       if (user._id == newMessageRecieved.sender._id) return;
 
-      socket.in(user._id).emit("message recieved", newMessageRecieved);
-      //.in-- inside user._id exclusive socket room joined-- emit this "message recieved" event
+      socket.in(user._id).emit("message recieved", newMessageRecieved);      
+
     });
   });
 
-  socket.off("setup", () => {    
+  socket.off("setup", () => {
+    console.log("USER DISCONNECTED");
     socket.leave(userData._id);
   });
 
-});
+}); 
